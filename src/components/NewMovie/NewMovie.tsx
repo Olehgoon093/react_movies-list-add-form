@@ -23,7 +23,7 @@ export const NewMovie: React.FC<NewProps> = ({ onAdd }) => {
   const [imgUrl, setImgUrl] = useState('');
   const [imdbUrl, setImdbUrl] = useState('');
   const [imdbId, setImdbId] = useState('');
-  const [count, setCount] = useState(0);
+  const [errors, setErrors] = useState<Record<string, string | null>>({});
   const isFormal =
     title.trim() && imgUrl.trim() && imdbUrl.trim() && imdbId.trim();
 
@@ -37,11 +37,11 @@ export const NewMovie: React.FC<NewProps> = ({ onAdd }) => {
     setImgUrl('');
     setImdbUrl('');
     setImdbId('');
-    setCount(prev => prev + 1);
+    setErrors({});
   };
 
   return (
-    <form className="NewMovie" key={count} onSubmit={allClear}>
+    <form className="NewMovie" onSubmit={allClear}>
       <h2 className="title">Add a movie</h2>
 
       <TextField
@@ -64,7 +64,14 @@ export const NewMovie: React.FC<NewProps> = ({ onAdd }) => {
         label="Image URL"
         value={imgUrl}
         onChange={(value: string) => setImgUrl(value)}
-        validate={value => (pattern.test(value) ? null : 'no url')}
+        validate={value => {
+          const error = pattern.test(value) ? null : 'Bad Url';
+
+          setErrors(prev => ({ ...prev, imgUrl: error }));
+
+          return error;
+        }}
+        error={errors.imgUrl}
         required
       />
 
@@ -73,7 +80,14 @@ export const NewMovie: React.FC<NewProps> = ({ onAdd }) => {
         label="Imdb URL"
         value={imdbUrl}
         onChange={(value: string) => setImdbUrl(value)}
-        validate={value => (pattern.test(value) ? null : 'bad url')}
+        validate={value => {
+          const error = pattern.test(value) ? null : 'Invalid URL';
+
+          setErrors(prev => ({ ...prev, imdbUrl: error }));
+
+          return error;
+        }}
+        error={errors.imdbUrl}
         required
       />
 
